@@ -5,7 +5,7 @@ CopyByPLS is designed to copy files from a playlist (.pls format) to another fol
 
 How to use:
 
-***javaw CopyByPLS "path-to-playlist.pls" "destination-folder" [/quiet]***
+    javaw CopyByPLS "path-to-playlist.pls" "destination-folder" [/quiet]
 
 This project uses:
 
