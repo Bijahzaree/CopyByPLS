@@ -281,39 +281,44 @@ class PLSFile{
 class FilesCopier{
 	public int FILES_AMOUNT_LIMIT = 255;
 	public String SUBFOLDER_NAME = "Folder"; ////В данной версии имя подпапок не выбирается
+	public String FILECOUNTER_PREFFIX = "_";
 	
 	public FilesCopier(){
 	}
 	
 	public void putInOneFolder(String[] sourceNameFiles, String destinationNameFolder) {
-		Path sourcePath = null;
+		//Path sourcePath = null;
 		Path destinationPath = null;
 		String[] destinationNameFiles = new String[sourceNameFiles.length];
 		int folderIndex=1;
-		int fileCounter=0;
+		int fileCounter=1;
 		for(int i=0; i<sourceNameFiles.length; i++) {
 			try{
-				sourcePath=Paths.get(sourceNameFiles[i]).getFileName();
-				destinationPath = Paths.get(destinationNameFolder).resolve(Paths.get(SUBFOLDER_NAME+folderIndex).resolve(sourcePath));
+				//sourcePath=Paths.get(folderIndex+"-"+fileCounter+1+"-"+Paths.get(sourceNameFiles[i]).getFileName().toString() );
+				destinationPath = Paths.get(destinationNameFolder).resolve(Paths.get(this.SUBFOLDER_NAME+folderIndex, fileCounter+this.FILECOUNTER_PREFFIX+Paths.get(sourceNameFiles[i]).getFileName().toString()));
 				//Распределение по папкам
-				if(fileCounter<FILES_AMOUNT_LIMIT) {
+				if(fileCounter < this.FILES_AMOUNT_LIMIT) {
 					fileCounter++;
 				}else {
-					fileCounter=0;
+					fileCounter=1;
 					folderIndex++;
 				}
+				//Составление списка назначения
+				destinationNameFiles[i]=destinationPath.toAbsolutePath().toString();
 			}catch(InvalidPathException err) {
 				System.err.println(err.getMessage());
+				sourceNameFiles[i] = null;
+				destinationNameFiles[i] = null;
 			}
-			//Составление списка назначения
-			destinationNameFiles[i]=destinationPath.toAbsolutePath().toString();
 		}
 		this.copyManyFiles(sourceNameFiles, destinationNameFiles);
 	}
 	
 	public void copyManyFiles(String[] sourceNameFiles, String[] destinationNameFiles) {
 		for(int i=0; i<sourceNameFiles.length && i<destinationNameFiles.length; i++) {
-			this.copyFile(sourceNameFiles[i], destinationNameFiles[i]);
+			if(sourceNameFiles[i] != null && destinationNameFiles[i] != null) {
+				this.copyFile(sourceNameFiles[i], destinationNameFiles[i]);
+			}
 		}		
 	}
 
