@@ -15,7 +15,7 @@ or
 
 This project uses:
 
-![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white) ![Launch4j](https://launch4j.sourceforge.net/)
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white) [Launch4j](https://launch4j.sourceforge.net/)
 
 ### [Description in Russian]
 ## 	Общие сведения
