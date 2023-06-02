@@ -15,7 +15,7 @@ or
 
 This project uses:
 
-![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white) ![Launch4j](https://launch4j.sourceforge.net/)
 
 ### [Description in Russian]
 ## 	Общие сведения
@@ -91,9 +91,8 @@ fileY=<имяФайла.flac*7>
 ```
 Illegal char <|> at index XX: имяФайла.rar|путь-и-имяфайла-в-архиве
 Illegal char <*> at index YY: имяФайла.flac*7
-имяФайла.rar|путь-и-имяфайла-в-архиве (Синтаксическая ошибка в имени файла, имени папки или метке тома)
-имяФайла.flac*7 (Синтаксическая ошибка в имени файла, имени папки или метке тома)
 ```
+
 
 ## Выходные данные
 ***CopyByPLS*** предназначена для непосредственного копирования треков, указанных во входном .pls-файле в папку назначения.
