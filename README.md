@@ -40,6 +40,12 @@ This project uses:
 Для запуска ***CopyByPLS*** (***Alpha***-версия):
 
     javaw CopyByPLS "путь-до-файла-playlist.pls" "папка-назначения" [/quiet]
+или
+
+    CopyByPLS.exe "path-to-playlist.pls" "destination-folder" [/quiet]
+или
+
+    java -jar CopyByPLS.jar "path-to-playlist.pls" "destination-folder" [/quiet]
 Параметр `/quiet` - необязательный, включает режим ***QuietMode*** (без вывода сообщений в консоль).
 
 ***CopyByPLS*** (***Alpha***-версия) по умолчанию создает лог-файл вывода ошибок " _err.log_ " и лог-файл " _out.log_ " в режиме ***QuietMode***
