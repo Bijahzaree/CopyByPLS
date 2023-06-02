@@ -6,6 +6,12 @@
 How to use:
 
     javaw CopyByPLS "path-to-playlist.pls" "destination-folder" [/quiet]
+or
+
+    CopyByPLS.exe "path-to-playlist.pls" "destination-folder" [/quiet]
+or
+
+    java -jar CopyByPLS.jar "path-to-playlist.pls" "destination-folder" [/quiet]
 
 This project uses:
 
@@ -42,7 +48,12 @@ This project uses:
 Пример запуска ***CopyByPLS*** (***Alpha***-версия):
 
     javaw CopyByPLS .\playlist.pls ..\NewFolder [/quiet]
-В качестве входных аргументов служат:
+или
+
+    CopyByPLS.exe "path-to-playlist.pls" "destination-folder" [/quiet]
+или
+
+    java -jar CopyByPLS.jar "path-to-playlist.pls" "destination-folder" [/quiet]В качестве входных аргументов служат:
 
 1. Путь и имя к .pls-файлу, в примере: `.\playlist.pls`. Подробнее о структуре входного .pls-файла - ниже.
 
