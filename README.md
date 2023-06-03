@@ -1,3 +1,6 @@
+## ЭВМбз-22-1
+## Plotnikoav Aleksey
+
 # CopyByPLS
 ### Version: Alpha
 
