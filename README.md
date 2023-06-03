@@ -4,7 +4,7 @@
 # CopyByPLS
 ### Version: Alpha
 
-See [Known problems, troubles and issues](https://github.com/Bijahzaree/CopyByPLS/blob/main/known_issues.md) and [Planned to implement](https://github.com/Bijahzaree/CopyByPLS/blob/main/planning.md)
+See [Known problems, troubles and issues](https://github.com/Bijahzaree/CopyByPLS/blob/main/known_issues.md) and [Planned to implement](https://github.com/Bijahzaree/CopyByPLS/blob/main/planning.md).
 
 ***CopyByPLS*** is designed to copy files from a playlist (.pls format) to another folder/storage.
 
@@ -24,7 +24,7 @@ This project uses:
 
 ### [Description in Russian]
 
-См. также - [Известные проблемы](https://github.com/Bijahzaree/CopyByPLS/blob/main/known_issues.md) and [Что планируется реализовать](https://github.com/Bijahzaree/CopyByPLS/blob/main/planning.md)
+См. также - [Известные проблемы](https://github.com/Bijahzaree/CopyByPLS/blob/main/known_issues.md) и [Что планируется реализовать](https://github.com/Bijahzaree/CopyByPLS/blob/main/planning.md).
 
 ## 	Общие сведения
 **CopyByPLS** предназначено для копирования файлов, перечисленных в плейлисте (формат файла - ***.pls***) в отдельную папку или на другое хранилище.
