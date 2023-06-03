@@ -20,7 +20,12 @@ This project uses:
 
 ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white) [Launch4j](https://launch4j.sourceforge.net/)
 
+See [Known problems, troubles and issues](https://github.com/Bijahzaree/CopyByPLS/blob/main/known_issues.md) and [Planned to implement](https://github.com/Bijahzaree/CopyByPLS/blob/main/planning.md)
+
 ### [Description in Russian]
+
+См. также - [Известные проблемы](https://github.com/Bijahzaree/CopyByPLS/blob/main/known_issues.md) and [Что планируется реализовать](https://github.com/Bijahzaree/CopyByPLS/blob/main/planning.md)
+
 ## 	Общие сведения
 **CopyByPLS** предназначено для копирования файлов, перечисленных в плейлисте (формат файла - ***.pls***) в отдельную папку или на другое хранилище.
 
