@@ -4,6 +4,8 @@
 # CopyByPLS
 ### Version: Alpha
 
+See [Known problems, troubles and issues](https://github.com/Bijahzaree/CopyByPLS/blob/main/known_issues.md) and [Planned to implement](https://github.com/Bijahzaree/CopyByPLS/blob/main/planning.md)
+
 ***CopyByPLS*** is designed to copy files from a playlist (.pls format) to another folder/storage.
 
 How to use:
@@ -19,8 +21,6 @@ or
 This project uses:
 
 ![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white) [Launch4j](https://launch4j.sourceforge.net/)
-
-See [Known problems, troubles and issues](https://github.com/Bijahzaree/CopyByPLS/blob/main/known_issues.md) and [Planned to implement](https://github.com/Bijahzaree/CopyByPLS/blob/main/planning.md)
 
 ### [Description in Russian]
 
