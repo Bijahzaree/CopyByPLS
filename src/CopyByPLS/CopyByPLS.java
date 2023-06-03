@@ -1,5 +1,10 @@
 package CopyByPLS;
 
+/*
+ЭВМбз-22-1
+Plotnikov Aleksey
+*/
+
 import java.io.*;
 //import java.nio.*;
 import java.nio.file.*;
