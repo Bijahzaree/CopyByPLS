@@ -1,13 +1,14 @@
 ## Known problems, troubles and issues
 
-1. Troubles with working with Cyrillic characters in the file path.
+1. (Now мaybe fixed. Currently being tested) Troubles with working with Cyrillic characters in the file path.
 1. Version incompatibility of the user virtual machines and the javac compiler when executing the jar file.
 
 ### [Description in Russian]
 
 ## Известные проблемы и замечания.
 
-1. Не все йогурты одинаково полезны, не все виртуальные машины работают одинаково даже на одной и той же реальной машине.
+1. (Возможно, исправлено. На данный момент проходит тестирование)
+Не все йогурты одинаково полезны, не все виртуальные машины работают одинаково даже на одной и той же реальной машине.
 То, что прекрасно отработало в одной, отказалось читать и писать файлы с кириллицей в пути в другой.
 Вопрос изучается.
 

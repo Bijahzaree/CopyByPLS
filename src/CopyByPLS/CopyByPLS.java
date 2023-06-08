@@ -1,10 +1,5 @@
 package CopyByPLS;
 
-/*
-ЭВМбз-22-1
-Plotnikov Aleksey
-*/
-
 import java.io.*;
 //import java.nio.*;
 import java.nio.file.*;
@@ -19,26 +14,44 @@ public class CopyByPLS {
 	protected static String outMessageBeforeStarting = "";
 	protected static String errMessageBeforeStarting = "";
 	public static boolean isQuietMode = false;
+	
+	//По умолчанию считаем что все кодировки работы с файлами - UTF-8
+	//protected static String consoleEncodingCharset = "UTF-8";
+	protected static String playlistEncodingCharset = "UTF-8";
+	protected static String fileNameEncodingCharset = "UTF-8";
 
 	public static void main(String[] args) {
-		//Подготовка к работе
+		//DEBUG consoleEncodingCharset = System.getProperty("console.encoding");
+		//DEBUG fileNameEncodingCharset = System.getProperty("file.encoding");
+		//DEBUG		System.out.println("concoleEncodingCharset: "+consoleEncodingCharset+"\nfileNameEncodingCharset: "+fileNameEncodingCharset);
+
+		//Проверка входных данных, подготовка к работе и копирование файлов
 		if(parseArgs(args)){
+			
+			//Попытка изменения кодировки имен файлов на кодировку плейлиста для исключения конвертации строк
+			setFileNameEncoding(playlistEncodingCharset);
+			
 			//Перенаправление потоков вывода сообщений и ошибок
 			setLogOutputStreams(outLogFileName, errorLogFileName);
-			PLSFile plsFile = new PLSFile(plsFileName);
-			String[] fileNames = plsFile.getFileNames();
-			FilesCopier copier = new FilesCopier();
-			copier.putInOneFolder(fileNames, DestinationFolderName);
+			
+			//Чтение .pls-файла
+			PLSFile plsFile = new PLSFile(plsFileName, playlistEncodingCharset);
+			
+			//Копирование списка
+			FilesCopier copier = new FilesCopier(fileNameEncodingCharset);
+			copier.putInOneFolder(plsFile.getFileNames(), DestinationFolderName, fileNameEncodingCharset);
+			
 		}else {
+			//Возмущаемся по поводу не всех входных параметров
 			System.out.println("Two arguments are expected to run this program:\n"
-					+ "1) pls-file name 2) destination folder\n"
+					+ "1) .pls-file name 2) destination folder\n"
 					+ "(for example: \"file.pls\" \"Folder\" )");
 		}
 	}
 
 	public static void setLogOutputStreams(String strOutLogFileName, String strErrorLogFileName) {
+		//Перенаправление потока вывода сообщений для отладки в режиме QuietMode
 		if(isQuietMode) {
-			//Перенаправление потока вывода сообщений для отладки в режиме QuietMode
 			try {
 				PrintStream outLogStream = new PrintStream(new FileOutputStream(strOutLogFileName));
 				System.setOut(outLogStream); 
@@ -62,31 +75,57 @@ public class CopyByPLS {
 		boolean isKnowedDirectory = false;
 		
 		if(args.length >= 2) { //По умолчанию предполагается минимум два аргумента - имя pls-файла и папка назначения
+			//Проверка на наличие плейлиста
 			if(new File(args[0]).exists()) {
 				plsFileName = args[0];
 				outMessage("Input source of copied file names: "+plsFileName);
 				isKnowedPLS = true;
+			}else {
+				outMessage("Can't find file: "+args[0]);
 			}
+			//Проверка на соответвствие аргумента (д.б. указана выходная папка)
 			if(new File(args[1]).isDirectory()) {
 				DestinationFolderName = args[1];
 				outMessage("Destination folder: "+DestinationFolderName);
 				isKnowedDirectory = true;
+			}else {
+				outMessage("\""+args[1]+"\" is not a Folder");				
 			}
+			//Проверка на указание дополнительных параметров
 			if(args.length > 2) {
+				int index = 0;
+				int argStringLength = 0;
+				//Чтение дополнительных параметров
 				for(int i=2; i<args.length; i++) {
 					if(args[i].startsWith("/") || args[i].startsWith("-")) {
-						switch(args[i].substring(1, args[i].length())) {
-							//В данной версии проверяется один единственный дополнительный параметр - "/quiet" -> QuietMode
+						argStringLength = args[i].length();
+						//Проверка на наличие знака присвоения
+						index = args[i].indexOf("=");
+						index = index!=-1? index : argStringLength;
+						//Распознание дополнительных параметров
+						switch(args[i].substring(1, index)) {
+							//Дополнительный параметр - "/quiet" -> QuietMode
 							case "quiet" : {
 								isQuietMode = true;
+								outMessage("QuietMode: "+isQuietMode);
 								break;
 							}
-							default :{} //В данной версии по умолчанию ничего не делаем
+							//Дополнительный параметр - "/charset=XYZ" -> Playlist Charset
+							case "charset" : {
+								if( index+1 < argStringLength ) {
+									playlistEncodingCharset = args[i].substring(index+1, argStringLength);
+								}
+								outMessage("Playlist encoding Charset: "+playlistEncodingCharset);
+								break;
+							}
+							//В данной версии по умолчанию ничего не делаем
+							default :{}
 						}
 					}
 				}
 			}
 		}
+		//Сообщаем об успешности распознания параметров
 		return isKnowedPLS && isKnowedDirectory;
 	}
 	
@@ -105,6 +144,47 @@ public class CopyByPLS {
 		errMessageBeforeStarting = "";		
 	}
 
+	protected static boolean setFileNameEncoding(String encodingCharset) {
+		boolean isSuccessful = false;
+		String outMessage = "";
+		String errMessage = "";
+		//Чтение кодировки имен файлов по умолчанию
+		try {
+			fileNameEncodingCharset = System.getProperty("file.encoding");
+		}catch(SecurityException err) {
+			errMessage = err.getMessage();
+		}catch(NullPointerException err) {
+			errMessage = err.getMessage();		
+		}catch(IllegalArgumentException err) {
+			errMessage = err.getMessage();			
+		}
+		//Сравнение кодировок по умолчанию с требуемой и попытка изменения
+		if( encodingCharset.equalsIgnoreCase( fileNameEncodingCharset ) ) {
+			//Указанная кодировка совпадает с системным значением
+			isSuccessful = true;
+			outMessage = "Charset is "+fileNameEncodingCharset;
+		}else {
+			//Попытка изменения кодировки
+			try{
+				System.setProperty("file.encoding", encodingCharset);
+				isSuccessful = true;
+				//Перестраховка и чтение измененной кодировки для дальнейшей работы
+				fileNameEncodingCharset = System.getProperty("file.encoding");
+			}catch(SecurityException err) {
+				errMessage = err.getMessage();
+			}catch(NullPointerException err) {
+				errMessage = err.getMessage();			
+			}catch(IllegalArgumentException err) {
+				errMessage = err.getMessage();			
+			}
+			//Сообщаем об успешности изменения кодировки
+			outMessage = isSuccessful? "Charset is changed to "+fileNameEncodingCharset : "Error when changing charset to "+encodingCharset;			
+		}
+		outMessage(outMessage);
+		errMessage(errMessage);
+		return isSuccessful;
+	}
+	
 }
 
 class PLSFile{
@@ -126,17 +206,46 @@ class PLSFile{
 		EOL,
 		EMPTY
 	}
-	protected PLSFileEntry[] entries = null;
-	protected ArrayList<PLSFileEntry> plsData = new ArrayList<PLSFileEntry>();
+	private PLSFileEntry[] entries = null; //Массив записей плейлиста
 	
+	//!!! NEED UPDATE! Код будет оптимизирован, plsData будет перемещена !!! 
+	private ArrayList<PLSFileEntry> plsData = new ArrayList<PLSFileEntry>();
+	
+	private String playlistEncodingCharset = "UTF-8"; //По умолчанию - UTF-8
+	private String fileNameEncodingCharset = "UTF-8"; //По умолчанию - UTF-8
+	
+	//Пустой конструктор со значениями по умолчанию
 	public PLSFile() {
+		//В данной версии ничего не делаем
 	}
 	
+	//Конструктор с именем файла
 	public PLSFile(String fileName) {
 		this.entries =  this.readPlsFile(fileName);
 	}
+
+	//Конструктор с именем файла и кодировкой содержиомого файла
+	public PLSFile(String fileName, String playlistEncoding) {
+		this.entries =  this.readPlsFile(fileName);
+		this.playlistEncodingCharset = playlistEncoding;
+	}
 	
+	//Конструктор с именем файла и кодировкой содержиомого файла и кодировкой имени файла	
+	public PLSFile(String fileName, String playlistEncoding, String fileNameEncoding) {
+		this.entries =  this.readPlsFile(fileName);
+		this.playlistEncodingCharset = playlistEncoding;
+		this.fileNameEncodingCharset = fileNameEncoding;
+	}
+
 	public PLSFileEntry[] readPlsFile(String fileName){
+		return this.readPlsFile(fileName, this.playlistEncodingCharset, this.fileNameEncodingCharset);
+	}
+
+	public PLSFileEntry[] readPlsFile(String fileName, String playlistEncoding, String fileNameEncoding){
+		return this.readPlsFile(new StringCharsetConverter().convertStringCharset(fileName, fileNameEncoding), playlistEncoding);
+	}	
+	
+	public PLSFileEntry[] readPlsFile(String fileName, String playlistEncoding){
 		//Подготовка буффера для чтения
 		BufferedInputStream inStream = null;
 		byte buffer[] = new byte[0];
@@ -146,7 +255,7 @@ class PLSFile{
 			inStream = new BufferedInputStream(new FileInputStream(fileName));
 			buffer = new byte[(int)(new File(fileName)).length()];
 			inStream.read( buffer, 0, buffer.length);
-			stringBuffer = new String(buffer);
+			stringBuffer = new String(buffer, playlistEncoding); //Расшифровка массива buffer с использованием заданной кодировки charset (playlistEncoding)
 			inStream.close();	
 		}catch(FileNotFoundException err){
 			System.err.println(err.getMessage());
@@ -157,7 +266,7 @@ class PLSFile{
 		}finally{
 			buffer = null;
 		}
-		return parsePlaylist(stringBuffer);
+		return this.parsePlaylist(stringBuffer);
 	}
 
 	protected PLSFileEntry[] parsePlaylist(String playlist){
@@ -258,7 +367,8 @@ class PLSFile{
 							}
 							break;
 						}
-						default -> {} //В данной версии по умолчанию ничего не делаем
+						 //В данной версии по умолчанию ничего не делаем
+						default -> {}
 					}
 				}
 			}
@@ -285,22 +395,49 @@ class PLSFile{
 
 class FilesCopier{
 	public int FILES_AMOUNT_LIMIT = 255;
-	public String SUBFOLDER_NAME = "Folder"; ////В данной версии имя подпапок не выбирается
+	public String SUBFOLDER_NAME = "Folder"; //В данной версии имя подпапок не выбирается. В дальнейшем - планируется через параметры с консоли
 	public String FILECOUNTER_PREFFIX = "_";
+	public String defaultEncodingCharset = "UTF-8"; //По умолчанию - UTF-8 
+	public String fileNameEncodingCharset = "UTF-8"; //По умолчанию - UTF-8
 	
+	//Конструктор без параметров
 	public FilesCopier(){
+		//Чтение кодировки имен файлов по умолчанию
+		try {
+			defaultEncodingCharset = System.getProperty("file.encoding");
+		}catch(SecurityException err) {
+			System.err.println(err.getMessage());
+		}catch(NullPointerException err) {
+			System.err.println(err.getMessage());		
+		}catch(IllegalArgumentException err) {
+			System.err.println(err.getMessage());			
+		}
+	}
+	
+	//Конструктор с указанием кодировки имен файлов
+	public FilesCopier(String encoding){
+		//Запуск конструктора без параметров
+		this();
+		this.fileNameEncodingCharset = encoding;
 	}
 	
 	public void putInOneFolder(String[] sourceNameFiles, String destinationNameFolder) {
-		//Path sourcePath = null;
+		this.putInOneFolder(sourceNameFiles, destinationNameFolder, this.SUBFOLDER_NAME, this.FILECOUNTER_PREFFIX, this.fileNameEncodingCharset);
+	}
+	
+	public void putInOneFolder(String[] sourceNameFiles, String destinationNameFolder, String encoding) {
+		this.putInOneFolder(sourceNameFiles, destinationNameFolder, this.SUBFOLDER_NAME, this.FILECOUNTER_PREFFIX, encoding );
+	}
+	
+	
+	public void putInOneFolder(String[] sourceNameFiles, String destinationNameFolder, String subFolderName, String FileCounterPreffix, String encoding) {
 		Path destinationPath = null;
 		String[] destinationNameFiles = new String[sourceNameFiles.length];
 		int folderIndex=1;
 		int fileCounter=1;
 		for(int i=0; i<sourceNameFiles.length; i++) {
 			try{
-				//sourcePath=Paths.get(folderIndex+"-"+fileCounter+1+"-"+Paths.get(sourceNameFiles[i]).getFileName().toString() );
-				destinationPath = Paths.get(destinationNameFolder).resolve(Paths.get(this.SUBFOLDER_NAME+folderIndex, fileCounter+this.FILECOUNTER_PREFFIX+Paths.get(sourceNameFiles[i]).getFileName().toString()));
+				destinationPath = Paths.get(destinationNameFolder).resolve(Paths.get(subFolderName+folderIndex, fileCounter+FileCounterPreffix+Paths.get(sourceNameFiles[i]).getFileName().toString()));
 				//Распределение по папкам
 				if(fileCounter < this.FILES_AMOUNT_LIMIT) {
 					fileCounter++;
@@ -316,7 +453,18 @@ class FilesCopier{
 				destinationNameFiles[i] = null;
 			}
 		}
-		this.copyManyFiles(sourceNameFiles, destinationNameFiles);
+		this.copyManyFiles(sourceNameFiles, destinationNameFiles, encoding);
+	}
+	
+	public void copyManyFiles(String[] sourceNameFiles, String[] destinationNameFiles, String encoding) {
+		//Проверка на соответствие указанной кодировки и кодировки по умолчанию 
+		if( encoding.equalsIgnoreCase(this.defaultEncodingCharset) ) {
+			this.copyManyFiles(sourceNameFiles, destinationNameFiles);
+		}else {
+			//Конвертация строк в указанную кодировку
+			StringCharsetConverter converter = new StringCharsetConverter(encoding);
+			this.copyManyFiles(converter.convertStringsCharset(sourceNameFiles), converter.convertStringsCharset(destinationNameFiles));			
+		}
 	}
 	
 	public void copyManyFiles(String[] sourceNameFiles, String[] destinationNameFiles) {
@@ -327,6 +475,17 @@ class FilesCopier{
 		}		
 	}
 
+	public void copyFile(String sourceNameFile, String destinationNameFile, String encoding) {
+		//Проверка на соответствие указанной кодировки и кодировки по умолчанию 
+		if( encoding.equalsIgnoreCase(this.defaultEncodingCharset) ) {
+			this.copyFile(sourceNameFile, destinationNameFile);
+		}else {
+			//Конвертация строк в указанную кодировку
+			StringCharsetConverter converter = new StringCharsetConverter(encoding);
+			this.copyFile(converter.convertStringCharset(sourceNameFile), converter.convertStringCharset(destinationNameFile));
+		}
+	}
+	
 	public void copyFile(String sourceNameFile, String destinationNameFile) {
 		//Подготовка буффера для чтения
 		BufferedInputStream inStream = null;
@@ -341,7 +500,7 @@ class FilesCopier{
 			inStream = new BufferedInputStream(new FileInputStream(sourceNameFile));
 			//Создание новых папок
 			Files.createDirectories(Paths.get(destinationNameFile).getParent());
-			outStream = new BufferedOutputStream(new FileOutputStream(new File(destinationNameFile)));
+			outStream = new BufferedOutputStream(new FileOutputStream(new File(destinationNameFile), false)); // Перезапись файла в случае наличия
 			buffer = new byte[(int)(new File(sourceNameFile)).length()];
 			inStream.read( buffer, 0, buffer.length);
 			outStream.write(buffer);
@@ -364,6 +523,7 @@ class FilesCopier{
 			System.err.println(errMessage);
 		}
 	}
+	
 }
 
 class PLSFileEntry{
@@ -410,8 +570,55 @@ class PLSFileEntry{
 	public String toString() {
 		//Данная функция написана исключительно для отладки программы
 		//В будущем её использование не планируется
-		return "Title: "+entryTitle+"\nFileName: "+fileName+"\nLength: "+entryLength;
+		return "Title: "+this.entryTitle+"\nFileName: "+this.fileName+"\nLength: "+this.entryLength;
 	}
 }
 
+class StringCharsetConverter{
+	private String defaultCharsetEncoding = "UTF-8"; //по умолчанию - UTF-8
+	
+	//Конструктор без параметров
+	public StringCharsetConverter(){
+		//В данной версии ничего не делаем
+	}
+	
+	//Контсруктор с указанием конечной кодировки по умолчанию
+	public StringCharsetConverter(String encoding){
+		this.defaultCharsetEncoding = encoding;
+	}
+	
+	public String[] convertStringsCharset(String[] strings){
+		return this.convertStringsCharset(strings, this.defaultCharsetEncoding);
+	}
+	
+	public String convertStringCharset(String string) {
+		return this.convertStringCharset(string, this.defaultCharsetEncoding);
+	}
+
+	
+	public String[] convertStringsCharset(String[] strings, String encoding){
+		String[] convertedStrings = new String[strings.length];
+		for(int i=0; i < strings.length ; i++) {
+			if(strings[i] !=null) {
+				convertedStrings[i] = this.convertStringCharset(strings[i], encoding);
+			}else {
+				convertedStrings[i] = strings[i];
+			}
+		}
+		return convertedStrings;
+	}
+	
+	public String convertStringCharset(String string, String encoding) {
+		String convertedString = null;
+		//Попытка перекодировать строку в новую кодировку;
+		try {
+			convertedString = new String( string.getBytes(encoding), encoding );
+		}catch(UnsupportedEncodingException err) {
+			System.err.println(err.getMessage());
+			convertedString = string;
+		}
+
+		return convertedString;
+	}
+}
 
